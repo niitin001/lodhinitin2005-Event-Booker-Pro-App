@@ -17,6 +17,14 @@ import CustomerBookings from "@/pages/CustomerBookings";
 import PhotographerDashboard from "@/pages/PhotographerDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AIHub from "@/pages/AIHub";
+import CategoryPage from "@/pages/CategoryPage";
+import PublicBooking from "@/pages/PublicBooking";
+import About from "@/pages/About";
+import Contact from "@/pages/Contact";
+import Pricing from "@/pages/Pricing";
+import HelpCenter from "@/pages/HelpCenter";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -53,6 +61,16 @@ function Router() {
       <Route path="/explore" component={Explore} />
       <Route path="/photographers/:id" component={PhotographerProfile} />
       <Route path="/ai" component={AIHub} />
+      <Route path="/category/:slug" component={CategoryPage} />
+      <Route path="/book" component={PublicBooking} />
+
+      {/* Info Pages */}
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/pricing" component={Pricing} />
+      <Route path="/help" component={HelpCenter} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       
       {/* Auth */}
       <Route path="/login" component={Login} />

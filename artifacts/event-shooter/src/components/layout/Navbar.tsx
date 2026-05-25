@@ -27,6 +27,8 @@ export function Navbar() {
           <nav className="hidden md:flex gap-6">
             <Link href="/explore" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Explore</Link>
             <Link href="/ai" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">AI Tools</Link>
+            <Link href="/pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
+            <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">About</Link>
           </nav>
         </div>
 
@@ -107,6 +109,9 @@ export function Navbar() {
               <nav className="flex flex-col gap-4 mt-8">
                 <Link href="/explore" className="text-lg font-medium">Explore</Link>
                 <Link href="/ai" className="text-lg font-medium">AI Tools</Link>
+                <Link href="/pricing" className="text-lg font-medium">Pricing</Link>
+                <Link href="/about" className="text-lg font-medium">About</Link>
+                <Link href="/help" className="text-lg font-medium">Help Center</Link>
                 {!user && (
                   <>
                     <hr className="my-2" />
