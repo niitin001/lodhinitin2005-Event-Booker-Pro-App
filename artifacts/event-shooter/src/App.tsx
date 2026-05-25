@@ -28,28 +28,27 @@ import Privacy from "@/pages/Privacy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
+    queries: { retry: 1, refetchOnWindowFocus: false },
   },
 });
 
-function ProtectedRoute({ component: Component, role }: { component: any, role?: "customer" | "photographer" | "admin" }) {
+function RequireAuth({ component: Component, role }: { component: any; role?: "customer" | "photographer" | "admin" }) {
   const { user, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-  
-  if (!user) {
-    return <Redirect to="/login" />;
-  }
-  
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (!user) return <Redirect to="/login" />;
   if (role && user.role !== role) {
-    return <Redirect to="/" />;
+    // Redirect to the right dashboard instead of blocking entirely
+    if (user.role === "photographer") return <Redirect to="/photographer/dashboard" />;
+    if (user.role === "admin") return <Redirect to="/admin" />;
+    return <Redirect to="/dashboard" />;
   }
-  
+  return <Component />;
+}
+
+function RequireAnyAuth({ component: Component }: { component: any }) {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
+  if (!user) return <Redirect to="/login" />;
   return <Component />;
 }
 
@@ -71,33 +70,32 @@ function Router() {
       <Route path="/help" component={HelpCenter} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
-      
+
       {/* Auth */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
-      
-      {/* Protected - Customer */}
-      <Route path="/dashboard">
-        {() => <ProtectedRoute component={CustomerDashboard} role="customer" />}
-      </Route>
-      <Route path="/bookings">
-        {() => <ProtectedRoute component={CustomerBookings} role="customer" />}
-      </Route>
-      <Route path="/book/:photographerId">
-        {() => <ProtectedRoute component={BookingFlow} role="customer" />}
-      </Route>
 
-      {/* Protected - Photographer */}
-      <Route path="/photographer/dashboard">
-        {() => <ProtectedRoute component={PhotographerDashboard} role="photographer" />}
-      </Route>
+      {/* Customer-only */}
+      <Route path="/dashboard">{() => <RequireAuth component={CustomerDashboard} role="customer" />}</Route>
+      <Route path="/bookings">{() => <RequireAuth component={CustomerBookings} role="customer" />}</Route>
 
-      {/* Protected - Admin */}
-      <Route path="/admin">
-        {() => <ProtectedRoute component={AdminDashboard} role="admin" />}
-      </Route>
-      
-      {/* Fallback */}
+      {/* Booking flow — any logged-in user (customer OR photographer booking another photographer) */}
+      <Route path="/book/:photographerId">{() => <RequireAnyAuth component={BookingFlow} />}</Route>
+
+      {/* Photographer */}
+      <Route path="/photographer/dashboard">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      {/* Photographer sub-pages all render the dashboard with a default tab */}
+      <Route path="/photographer/bookings">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      <Route path="/photographer/portfolio">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      <Route path="/photographer/packages">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      <Route path="/photographer/availability">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      <Route path="/photographer/earnings">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      <Route path="/photographer/profile">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+
+      {/* Admin */}
+      <Route path="/admin">{() => <RequireAuth component={AdminDashboard} role="admin" />}</Route>
+
+      {/* Catch-all */}
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,0 +1,54 @@
+Please fix and complete the photographer signup, photographer dashboard, customer discovery, and booking system in my Event Booker Pro app.
+
+Current problems:
+1. Photographer signup is not working.
+2. After photographer signup/login, it should open a photographer dashboard/profile page, but it does not.
+3. Booking page is showing 404 Page Not Found.
+4. Customers cannot properly book or contact photographers.
+5. Photographer profiles are not reaching/displaying to customers.
+
+Required features:
+
+1. Photographer Authentication
+- Create separate signup/login flow for photographers.
+- Photographer signup form fields: full name, email, phone, password, city, experience, photography category, starting price, portfolio images, bio/about, Instagram/website link.
+- After successful signup/login, redirect photographer to Photographer Dashboard.
+
+2. Photographer Dashboard
+- Photographer can create and edit profile.
+- Photographer can upload portfolio photos.
+- Photographer can add event shooting services like wedding shoot, pre-wedding, birthday, corporate, fashion, party, engagement.
+- Photographer can set price/package details.
+- Photographer can add availability dates.
+- Photographer can view customer booking requests.
+- Photographer can accept/reject booking requests.
+
+3. Customer Side
+- Show all photographer profiles to customers.
+- Add filter by city, category, price range, experience, rating.
+- Customer can open photographer detail page.
+- Detail page should show portfolio, bio, services, pricing, availability, contact button, and booking button.
+- Customer can contact photographer or send booking request.
+
+4. Booking System
+- Fix 404 error on booking page.
+- Create working booking route/page.
+- Booking form fields: customer name, phone, email, event type, event date, location, budget, message, selected photographer.
+- After booking, show success confirmation message.
+- Booking request should appear in photographer dashboard.
+- Also create customer booking history page.
+
+5. Useful Extra Features
+- Add rating and review system.
+- Add wishlist/save photographer option.
+- Add verified photographer badge.
+- Add search bar for photographers/events.
+- Add notification section for new booking requests.
+- Add admin dashboard to manage photographers, customers, bookings, reviews, and categories.
+- Add proper empty states and loading states.
+- Make all buttons and links functional.
+- Make design mobile responsive.
+- Fix all broken routes and console errors.
+
+Final goal:
+Make the app work like a real event photographer booking platform where photographers can register, create profiles, showcase their work, and customers can discover, contact, and book them easily.
