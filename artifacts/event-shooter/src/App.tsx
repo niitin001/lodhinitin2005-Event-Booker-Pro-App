@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 import NotFound from "@/pages/not-found";
+import { BottomNav } from "@/components/layout/BottomNav";
 import Home from "@/pages/Home";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -54,6 +55,7 @@ function RequireAnyAuth({ component: Component }: { component: any }) {
 
 function Router() {
   return (
+    <>
     <Switch>
       {/* Public Routes */}
       <Route path="/" component={Home} />
@@ -98,6 +100,8 @@ function Router() {
       {/* Catch-all */}
       <Route component={NotFound} />
     </Switch>
+    <BottomNav />
+    </>
   );
 }
 
