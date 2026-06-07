@@ -127,6 +127,10 @@ export interface Photographer {
   isApproved?: boolean;
   /** @nullable */
   yearsOfExperience?: number | null;
+  /** @nullable */
+  instagramHandle?: string | null;
+  /** @nullable */
+  whatsappNumber?: string | null;
 }
 
 export type PortfolioItemMediaType = typeof PortfolioItemMediaType[keyof typeof PortfolioItemMediaType];
@@ -215,6 +219,8 @@ export interface PhotographerProfile {
   equipment?: string | null;
   /** @nullable */
   instagramHandle?: string | null;
+  /** @nullable */
+  whatsappNumber?: string | null;
 }
 
 export interface PhotographerListResponse {

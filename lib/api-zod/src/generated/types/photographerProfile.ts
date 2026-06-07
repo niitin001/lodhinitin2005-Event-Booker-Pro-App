@@ -38,4 +38,6 @@ export interface PhotographerProfile {
   equipment?: string | null;
   /** @nullable */
   instagramHandle?: string | null;
+  /** @nullable */
+  whatsappNumber?: string | null;
 }

@@ -23,6 +23,7 @@ export const photographersTable = pgTable("photographers", {
   yearsOfExperience: integer("years_of_experience"),
   equipment: text("equipment"),
   instagramHandle: text("instagram_handle"),
+  whatsappNumber: text("whatsapp_number"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

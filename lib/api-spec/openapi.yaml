@@ -1452,6 +1452,8 @@ components:
         isVerified: { type: boolean }
         isApproved: { type: boolean }
         yearsOfExperience: { type: ["integer", "null"] }
+        instagramHandle: { type: ["string", "null"] }
+        whatsappNumber: { type: ["string", "null"] }
 
     PhotographerProfile:
       type: object
@@ -1479,6 +1481,7 @@ components:
         reviews: { type: array, items: { $ref: "#/components/schemas/Review" } }
         equipment: { type: ["string", "null"] }
         instagramHandle: { type: ["string", "null"] }
+        whatsappNumber: { type: ["string", "null"] }
 
     PhotographerListResponse:
       type: object

@@ -13,7 +13,8 @@ function serializePhotographer(p: typeof photographersTable.$inferSelect) {
     totalReviews: p.totalReviews, totalBookings: p.totalBookings, startingPrice: p.startingPrice,
     coverImageUrl: p.coverImageUrl, avatarUrl: p.avatarUrl, isAvailable: p.isAvailable,
     isFeatured: p.isFeatured, isVerified: p.isVerified, isApproved: p.isApproved,
-    yearsOfExperience: p.yearsOfExperience,
+    yearsOfExperience: p.yearsOfExperience, instagramHandle: p.instagramHandle,
+    whatsappNumber: p.whatsappNumber,
   };
 }
 

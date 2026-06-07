@@ -211,7 +211,9 @@ export const GetWishlistResponseItem = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })
 export const GetWishlistResponse = zod.array(GetWishlistResponseItem)
 
@@ -291,7 +293,9 @@ export const ListPhotographersResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })),
   "total": zod.number(),
   "page": zod.number(),
@@ -319,7 +323,9 @@ export const GetTrendingPhotographersResponseItem = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })
 export const GetTrendingPhotographersResponse = zod.array(GetTrendingPhotographersResponseItem)
 
@@ -412,7 +418,8 @@ export const GetPhotographerResponse = zod.object({
   "createdAt": zod.string()
 })).optional(),
   "equipment": zod.string().nullish(),
-  "instagramHandle": zod.string().nullish()
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })
 
 
@@ -506,7 +513,8 @@ export const UpdatePhotographerResponse = zod.object({
   "createdAt": zod.string()
 })).optional(),
   "equipment": zod.string().nullish(),
-  "instagramHandle": zod.string().nullish()
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })
 
 
@@ -695,7 +703,9 @@ export const GetPhotographerDashboardResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -777,7 +787,9 @@ export const ListBookingsResponseItem = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -876,7 +888,9 @@ export const GetBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -963,7 +977,9 @@ export const UpdateBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1043,7 +1059,9 @@ export const AcceptBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1127,7 +1145,9 @@ export const RejectBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1211,7 +1231,9 @@ export const CancelBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1291,7 +1313,9 @@ export const CompleteBookingResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1745,7 +1769,9 @@ export const GetAdminDashboardResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 }).optional(),
   "customer": zod.object({
   "id": zod.number(),
@@ -1797,7 +1823,9 @@ export const GetAdminDashboardResponse = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })).optional(),
   "revenueByMonth": zod.array(zod.object({
   "month": zod.string(),
@@ -1868,7 +1896,9 @@ export const GetPendingPhotographersResponseItem = zod.object({
   "isFeatured": zod.boolean(),
   "isVerified": zod.boolean().optional(),
   "isApproved": zod.boolean().optional(),
-  "yearsOfExperience": zod.number().nullish()
+  "yearsOfExperience": zod.number().nullish(),
+  "instagramHandle": zod.string().nullish(),
+  "whatsappNumber": zod.string().nullish()
 })
 export const GetPendingPhotographersResponse = zod.array(GetPendingPhotographersResponseItem)
 
