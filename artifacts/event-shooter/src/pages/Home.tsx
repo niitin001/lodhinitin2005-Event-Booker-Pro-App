@@ -139,7 +139,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* ── HERO ── */}
-        <section className="relative h-[90vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[100svh] sm:h-[90vh] sm:min-h-[600px] flex items-center justify-center overflow-hidden py-20 sm:py-0">
           {/* Background with blur */}
           <div className="absolute inset-0 z-0">
             <img
@@ -151,27 +151,32 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/55 to-black/80" />
           </div>
 
-          {/* Live Activity Ticker */}
-          <div className="absolute top-20 left-0 right-0 z-20 flex justify-center">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activityIdx}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.4 }}
-                className="bg-black/40 backdrop-blur-md border border-white/10 text-white text-xs px-4 py-2 rounded-full flex items-center gap-2"
-              >
-                <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
-                {LIVE_ACTIVITY[activityIdx].msg}
-                <span className="text-white/50 ml-1">{LIVE_ACTIVITY[activityIdx].time}</span>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
           <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+            {/* Live Activity Ticker — in document flow, never overlaps heading */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center mb-4"
+            >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activityIdx}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 6 }}
+                  transition={{ duration: 0.4 }}
+                  className="bg-black/40 backdrop-blur-md border border-white/10 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 max-w-xs sm:max-w-sm md:max-w-none truncate"
+                >
+                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
+                  <span className="truncate">{LIVE_ACTIVITY[activityIdx].msg}</span>
+                  <span className="text-white/50 ml-1 flex-shrink-0 hidden sm:inline">{LIVE_ACTIVITY[activityIdx].time}</span>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Badge className="mb-5 text-white border-white/30 bg-white/10 backdrop-blur text-sm px-4 py-1.5 tracking-wide">
+              <Badge className="mb-4 text-white border-white/30 bg-white/10 backdrop-blur text-xs sm:text-sm px-3 sm:px-4 py-1.5 tracking-wide">
                 2,400+ Verified Vendors across 80+ Indian Cities
               </Badge>
             </motion.div>
@@ -180,7 +185,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="font-serif text-5xl md:text-7xl font-bold tracking-tight mb-5 leading-tight"
+              className="font-serif text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-4 sm:mb-5 leading-tight"
             >
               Cinematic Memories,<br />
               <span className="italic text-amber-400">Booked Instantly.</span>
@@ -190,7 +195,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.15 }}
-              className="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto"
+              className="text-base sm:text-lg md:text-xl text-gray-200 mb-6 sm:mb-8 max-w-2xl mx-auto px-2 sm:px-0"
             >
               Hire elite photographers, videographers, DJs, decorators, and more — for your next big event.
             </motion.p>
