@@ -276,20 +276,20 @@ const PHOTOGRAPHERS = [
     instagram: "clicktech_productions",
     bio: "Wedding Bookings Open for 2026! Professional photography & videography. Budget Friendly to Premium packages for Reception & Muhurtham. Candid, Traditional, Drone coverage available.",
     specializations: ["Wedding", "Candid", "Drone", "Videography", "Corporate"],
-    startingPrice: 79999,
+    startingPrice: 9999,
     rating: 4.9,
     experience: 10,
     isFeatured: true,
-    coverImage: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1200&q=80",
+    coverImage: "https://images.unsplash.com/photo-1629756048377-09540f52caa1?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8d2VkZGluZyUyMHBob3RvZ3JhcGhlcnxlbnwwfHwwfHx8MA%3D%3D",
     portfolio: [
       "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800",
       "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800",
-      "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=800",
+      "https://https://images.unsplash.com/photo-1599462616558-2b75fd26a283?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cGhvdG9ncmFwaGVyJTIwd2VkZGluZyUyMGluZGlhbnxlbnwwfHwwfHx8MA%3D%3D,
     ],
     packages: [
-      { name: "Budget Friendly", description: "Reception & Muhurtham — essential coverage", price: 79999, duration: 12, includes: ["1 candid photographer", "1 traditional photographer", "1 traditional videographer", "Cinematic highlights (3-5 min)", "1 Instagram reel", "1 premium album (40 pages)", "All edited photos & videos"] },
-      { name: "Mid-Range Package", description: "2 candid photographers + drone", price: 109999, duration: 16, includes: ["2 candid photographers", "1 traditional photographer", "2 traditional videographers", "Cinematic highlights film", "Teaser video + 2 Instagram reels", "Drone coverage", "2 premium albums (40 pages each)", "Hard drive with all data"] },
-      { name: "Premium Package", description: "Full luxury wedding production", price: 149999, duration: 24, includes: ["2 candid + 2 traditional photographers", "2 cinematographers", "Cinematic wedding film (10-15 min)", "Teaser video + 3 reels", "Drone coverage", "LED wall display (6x8 ft)", "Same day edit", "2 premium albums (40 pages)", "Online gallery"] },
+      { name: "Budget Friendly", description: "Reception & Muhurtham — essential coverage", price: 9999, duration: 12, includes: ["1 candid photographer", "1 traditional photographer", "1 traditional videographer", "Cinematic highlights (3-5 min)", "1 Instagram reel", "1 premium album (40 pages)", "All edited photos & videos"] },
+      { name: "Mid-Range Package", description: "2 candid photographers + drone", price: 11999, duration: 16, includes: ["2 candid photographers", "1 traditional photographer", "2 traditional videographers", "Cinematic highlights film", "Teaser video + 2 Instagram reels", "Drone coverage", "2 premium albums (40 pages each)", "Hard drive with all data"] },
+      { name: "Premium Package", description: "Full luxury wedding production", price: 14999, duration: 24, includes: ["2 candid + 2 traditional photographers", "2 cinematographers", "Cinematic wedding film (10-15 min)", "Teaser video + 3 reels", "Drone coverage", "LED wall display (6x8 ft)", "Same day edit", "2 premium albums (40 pages)", "Online gallery"] },
     ],
   },
   {
@@ -493,6 +493,71 @@ const MAKEUP_ARTISTS = [
       { name: "HD Makeup", description: "High-definition flawless finish", price: 3500, duration: 2, includes: ["HD makeup", "Hairstyle", "Basic accessories"] },
       { name: "Party Makeup", description: "Glamorous party look", price: 2000, duration: 2, includes: ["Party makeup", "Hairstyle", "Saree draping"] },
       { name: "Bridal Makeup", description: "Complete bridal transformation", price: 5000, duration: 4, includes: ["Bridal makeup", "Hairstyle", "Saree draping", "Basic accessories"] },
+    ],
+  },
+  {
+    name: "Palak Makeup",
+    email: "palakmakeup@eventshooter.in",
+    city: "Indore",
+    whatsapp: "1234567890",
+    instagram: "palak_makeup_artistry",
+    bio: "Palak Makeup — Enhancing Beauty, Elevating Confidence. 4 years of experience in bridal and special occasion makeup. Specialising in Bridal, Engagement, Reception, Party, HD, Airbrush Makeup, Hair Styling and Draping.",
+    specializations: [
+      "Bridal Makeup",
+      "Engagement Makeup",
+      "Reception Makeup",
+      "Party Makeup",
+      "HD Makeup",
+      "Airbrush Makeup",
+      "Hair Styling",
+      "Draping"
+    ],
+    startingPrice: 5000,
+    rating: 4.6,
+    experience: 4,
+    isFeatured: false,
+    coverImage: "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=1200&q=80",
+    portfolio: [
+      "https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800",
+      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=800",
+      "https://images.unsplash.com/photo-1571875257727-256c39da42af?w=800"
+    ],
+    packages: [
+      {
+        name: "Party Makeup",
+        description: "Glamorous party look with professional finishing",
+        price: 5000,
+        duration: 2,
+        includes: ["Party makeup", "Hairstyle", "Finishing touch"]
+      },
+      {
+        name: "Engagement Makeup",
+        description: "Elegant engagement makeup look",
+        price: 7000,
+        duration: 3,
+        includes: ["Engagement makeup", "Hairstyle", "Accessories"]
+      },
+      {
+        name: "HD Makeup",
+        description: "High-definition flawless makeup look",
+        price: 8000,
+        duration: 3,
+        includes: ["HD makeup", "Hairstyle", "Draping"]
+      },
+      {
+        name: "Airbrush Makeup",
+        description: "Premium airbrush makeup for long-lasting finish",
+        price: 12000,
+        duration: 4,
+        includes: ["Airbrush makeup", "Hair styling", "Draping", "Premium finish"]
+      },
+      {
+        name: "Bridal Makeup",
+        description: "Complete bridal makeup package",
+        price: 15000,
+        duration: 5,
+        includes: ["Bridal makeup", "Hair styling", "Draping", "Accessories"]
+      }
     ],
   },
   {

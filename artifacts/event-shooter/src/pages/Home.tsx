@@ -8,9 +8,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Search, MapPin, Camera, Star, ArrowRight, Video,
-  Aperture, Plane, Music, Wand2, CheckCircle, Navigation,
-  TrendingUp, Heart, Shield, Clock, Zap, Award,
+  Search, MapPin, Camera, Star, ArrowRight,
+  CheckCircle, Navigation, Shield, Clock, Zap, Award, TrendingUp, Wand2,
 } from "lucide-react";
 import { useGetTrendingPhotographers, useListPhotographers } from "@workspace/api-client-react";
 import { BookingDialog } from "@/components/BookingDialog";
@@ -35,14 +34,6 @@ const EVENT_TYPES = [
   { value: "product", label: "Product Photography" },
 ];
 
-const CATEGORIES = [
-  { name: "Wedding", slug: "wedding", icon: Aperture, image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80", desc: "Photographers · Decorators · Mehendi" },
-  { name: "Corporate", slug: "corporate", icon: Camera, image: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80", desc: "AV Setup · Anchors · Branding" },
-  { name: "Fashion", slug: "fashion", icon: Star, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", desc: "Runway · Stylists · Lighting" },
-  { name: "Party", slug: "party", icon: Music, image: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=600&q=80", desc: "DJs · Decorators · Catering" },
-  { name: "Drone", slug: "drone", icon: Plane, image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=600&q=80", desc: "DGCA Certified · 4K Aerial" },
-  { name: "Reels", slug: "reel", icon: Video, image: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=80", desc: "Viral Content · Short Films" },
-];
 
 
 const TRENDING_PACKAGES = [
@@ -52,13 +43,42 @@ const TRENDING_PACKAGES = [
   { name: "Party Blast", price: "₹20,000", originalPrice: "₹28,000", desc: "DJ + Balloon decor + Birthday cake + Photographer", badge: "Popular", color: "from-amber-500 to-orange-600" },
 ];
 
-const LIVE_ACTIVITY = [
-  { msg: "Sneha from Delhi just booked Neeraj Photography for her wedding", time: "2 min ago" },
-  { msg: "Rahul from Bangalore sent a booking request to ClickTech Productions", time: "5 min ago" },
-  { msg: "Pooja from Chennai booked Black Magic Studio for a corporate event", time: "8 min ago" },
-  { msg: "Amit from Mumbai booked Rudransh Films for a pre-wedding drone shoot", time: "12 min ago" },
-  { msg: "Meera from Hyderabad booked Golden Frame Studio for her engagement", time: "15 min ago" },
-  { msg: "Vikram from Pune requested Capture India Films for a fashion shoot", time: "18 min ago" },
+const VENDOR_TYPES = [
+  {
+    name: "Photographer",
+    desc: "Wedding · Pre-Wedding · Candid · Drone · Reel",
+    image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80",
+    href: "/explore?category=photographer",
+    available: true,
+  },
+  {
+    name: "Makeup Artist",
+    desc: "Bridal · HD · Airbrush · Engagement · Party",
+    image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80",
+    href: "/explore?category=makeup",
+    available: true,
+  },
+  {
+    name: "DJ",
+    desc: "Weddings · Parties · Corporate Events",
+    image: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&q=80",
+    href: null,
+    available: false,
+  },
+  {
+    name: "Decoration",
+    desc: "Floral · Balloon · Stage · Mandap · Lighting",
+    image: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=600&q=80",
+    href: null,
+    available: false,
+  },
+  {
+    name: "Catering",
+    desc: "Veg · Non-Veg · Multi-Cuisine · Live Counters",
+    image: "https://images.unsplash.com/photo-1555244162-803834f70033?w=600&q=80",
+    href: null,
+    available: false,
+  },
 ];
 
 const TESTIMONIALS = [
@@ -84,7 +104,6 @@ export default function Home() {
   const [cityInput, setCityInput] = useState("");
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
-  const [activityIdx, setActivityIdx] = useState(0);
   const cityRef = useRef<HTMLDivElement>(null);
   const { data: trending } = useGetTrendingPhotographers();
   const { data: allPhotographersData } = useListPhotographers({});
@@ -94,11 +113,6 @@ export default function Home() {
 
   useEffect(() => {
     const t = setInterval(() => setTestimonialIdx(i => (i + 1) % TESTIMONIALS.length), 5000);
-    return () => clearInterval(t);
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setActivityIdx(i => (i + 1) % LIVE_ACTIVITY.length), 3500);
     return () => clearInterval(t);
   }, []);
 
@@ -152,29 +166,6 @@ export default function Home() {
           </div>
 
           <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
-            {/* Live Activity Ticker — in document flow, never overlaps heading */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="flex justify-center mb-4"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activityIdx}
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  transition={{ duration: 0.4 }}
-                  className="bg-black/40 backdrop-blur-md border border-white/10 text-white text-xs px-3 py-1.5 rounded-full flex items-center gap-2 max-w-xs sm:max-w-sm md:max-w-none truncate"
-                >
-                  <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse flex-shrink-0" />
-                  <span className="truncate">{LIVE_ACTIVITY[activityIdx].msg}</span>
-                  <span className="text-white/50 ml-1 flex-shrink-0 hidden sm:inline">{LIVE_ACTIVITY[activityIdx].time}</span>
-                </motion.div>
-              </AnimatePresence>
-            </motion.div>
-
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
               <Badge className="mb-4 text-white border-white/30 bg-white/10 backdrop-blur text-xs sm:text-sm px-3 sm:px-4 py-1.5 tracking-wide">
                 2,400+ Verified Vendors across 80+ Indian Cities
@@ -307,67 +298,64 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── LIVE ACTIVITY BAR ── */}
-        <div className="bg-amber-500 text-black py-2.5 px-4 text-sm font-medium overflow-hidden">
-          <div className="container mx-auto max-w-7xl flex items-center gap-3">
-            <span className="flex items-center gap-1.5 shrink-0 font-bold uppercase text-xs tracking-wider">
-              <span className="w-2 h-2 bg-black rounded-full animate-pulse" /> Live
-            </span>
-            <div className="overflow-hidden flex-1">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={activityIdx}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {LIVE_ACTIVITY[activityIdx].msg}
-                </motion.p>
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* ── CATEGORIES ── */}
+        {/* ── VENDOR TYPES ── */}
         <section className="py-20 bg-background">
           <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-end mb-10">
               <div>
                 <Badge variant="outline" className="mb-3 text-xs font-semibold tracking-wider uppercase">Browse</Badge>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-tight">Book by Category</h2>
-                <p className="text-muted-foreground mt-2">Specialists, packages, and prices for every event type.</p>
+                <h2 className="font-serif text-3xl md:text-4xl font-bold tracking-tight">What are you looking for?</h2>
+                <p className="text-muted-foreground mt-2">Select a vendor type to see available professionals near you.</p>
               </div>
               <Button variant="ghost" onClick={() => setLocation("/explore")} className="hidden sm:flex">
                 All Vendors <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              {CATEGORIES.map((category, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {VENDOR_TYPES.map((vt, i) => (
                 <motion.div
-                  key={category.name}
+                  key={vt.name}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.07 }}
                 >
-                  <Link href={`/category/${category.slug}`} className="group block relative overflow-hidden rounded-2xl aspect-[3/4] cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300">
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                    <div className="absolute bottom-4 left-3 right-3 text-white">
-                      <h3 className="font-bold text-base leading-tight">{category.name}</h3>
-                      <p className="text-[10px] text-gray-300 mt-0.5 leading-tight">{category.desc}</p>
+                  {vt.available ? (
+                    <Link href={vt.href!} className="group block relative overflow-hidden rounded-2xl aspect-[3/4] cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300">
+                      <img
+                        src={vt.image}
+                        alt={vt.name}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                      <div className="absolute bottom-4 left-3 right-3 text-white">
+                        <h3 className="font-bold text-base leading-tight">{vt.name}</h3>
+                        <p className="text-[10px] text-gray-300 mt-0.5 leading-tight">{vt.desc}</p>
+                      </div>
+                      <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <span className="bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Explore</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <div className="group block relative overflow-hidden rounded-2xl aspect-[3/4] shadow-sm opacity-70 cursor-not-allowed">
+                      <img
+                        src={vt.image}
+                        alt={vt.name}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/20" />
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-white/90 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Coming Soon</span>
+                      </div>
+                      <div className="absolute bottom-4 left-3 right-3 text-white">
+                        <h3 className="font-bold text-base leading-tight">{vt.name}</h3>
+                        <p className="text-[10px] text-gray-300 mt-0.5 leading-tight">{vt.desc}</p>
+                      </div>
                     </div>
-                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <span className="bg-amber-400 text-black text-[10px] font-bold px-2 py-0.5 rounded-full">Explore</span>
-                    </div>
-                  </Link>
+                  )}
                 </motion.div>
               ))}
             </div>

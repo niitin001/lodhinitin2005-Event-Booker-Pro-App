@@ -78,6 +78,12 @@ function FilterPanel({
   );
 }
 
+const VENDOR_CATEGORY_TABS = [
+  { value: "all", label: "All Vendors" },
+  { value: "photographer", label: "Photographer" },
+  { value: "makeup", label: "Makeup Artist" },
+];
+
 export default function Explore() {
   const [, setLocation] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
@@ -86,8 +92,9 @@ export default function Explore() {
   const [eventType, setEventType] = useState(searchParams.get("eventType") || "all");
   const [priceIdx, setPriceIdx] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [vendorCategory, setVendorCategory] = useState(searchParams.get("category") || "all");
 
-  const handleReset = () => { setCity("all"); setEventType("all"); setPriceIdx(0); setSearchQuery(""); };
+  const handleReset = () => { setCity("all"); setEventType("all"); setPriceIdx(0); setSearchQuery(""); setVendorCategory("all"); };
 
   const { data, isLoading } = useListPhotographers(undefined, {
     query: { queryKey: ["photographers", "list"] as any }
@@ -96,7 +103,12 @@ export default function Explore() {
   const all = data?.photographers || [];
   const maxPrice = PRICE_RANGES[priceIdx].max;
 
+  const isMakeupArtist = (p: typeof all[0]) =>
+    p.specializations?.some(s => s.toLowerCase().includes("makeup")) ?? false;
+
   const photographers = all.filter(p => {
+    if (vendorCategory === "photographer" && isMakeupArtist(p)) return false;
+    if (vendorCategory === "makeup" && !isMakeupArtist(p)) return false;
     if (city && city !== "all" && p.city.toLowerCase() !== city.toLowerCase()) return false;
     if (eventType && eventType !== "all") {
       const hasSpec = p.specializations?.some(s => s.toLowerCase().includes(eventType.toLowerCase()));
@@ -129,6 +141,23 @@ export default function Explore() {
             <p className="text-muted-foreground mt-1">
               {isLoading ? "Loading..." : `${photographers.length} verified professionals found`}
             </p>
+          </div>
+
+          {/* Vendor Category Tabs */}
+          <div className="flex gap-2 mb-5 flex-wrap">
+            {VENDOR_CATEGORY_TABS.map(tab => (
+              <button
+                key={tab.value}
+                onClick={() => setVendorCategory(tab.value)}
+                className={`px-4 py-2 rounded-full text-sm font-semibold border transition-colors ${
+                  vendorCategory === tab.value
+                    ? "bg-foreground text-background border-foreground"
+                    : "bg-background text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Search + Mobile Filter Toggle */}
