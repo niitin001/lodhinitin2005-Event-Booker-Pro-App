@@ -42,15 +42,13 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     isVerified: true, referralCode,
   }).returning();
 
-  if (role === "photographer") {
-    await db.insert(photographersTable).values({
-      userId: user.id,
-      displayName: name,
-      city: "",
-      specializations: [],
-      isApproved: false,
-    });
-  }
+  await db.insert(photographersTable).values({
+    userId: user.id,
+    displayName: name,
+    city: "",
+    specializations: [],
+    isApproved: false,
+  });
 
   const token = signJwt({ id: user.id, role: user.role });
   res.status(201).json({ token, user: serializeUser(user) });

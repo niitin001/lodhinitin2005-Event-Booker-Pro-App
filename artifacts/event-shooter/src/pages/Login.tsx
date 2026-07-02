@@ -41,9 +41,7 @@ export default function Login() {
         onSuccess: (data) => {
           login(data.token, data.user);
           toast.success("Logged in successfully");
-          if (data.user.role === "photographer") {
-            setLocation("/photographer/dashboard");
-          } else if (data.user.role === "admin") {
+          if (data.user.role === "admin") {
             setLocation("/admin");
           } else {
             setLocation("/dashboard");

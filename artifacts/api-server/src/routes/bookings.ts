@@ -47,12 +47,12 @@ function serializeBooking(b: typeof bookingsTable.$inferSelect, extras?: {
 }
 
 router.get("/bookings", requireAuth, async (req, res): Promise<void> => {
-  const { status, role } = req.query as { status?: string; role?: string };
+  const { status, as } = req.query as { status?: string; as?: string };
   const userId = req.userId!;
   const userRole = req.userRole!;
 
   let whereCondition;
-  if (userRole === "photographer") {
+  if (userRole === "photographer" || as === "photographer") {
     const [photographer] = await db.select().from(photographersTable).where(eq(photographersTable.userId, userId));
     if (!photographer) { res.json([]); return; }
     whereCondition = eq(bookingsTable.photographerId, photographer.id);

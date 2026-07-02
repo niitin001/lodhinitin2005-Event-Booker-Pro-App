@@ -13,7 +13,7 @@ import Register from "@/pages/Register";
 import Explore from "@/pages/Explore";
 import PhotographerProfile from "@/pages/PhotographerProfile";
 import BookingFlow from "@/pages/BookingFlow";
-import CustomerDashboard from "@/pages/CustomerDashboard";
+import UnifiedDashboard from "@/pages/UnifiedDashboard";
 import CustomerBookings from "@/pages/CustomerBookings";
 import PhotographerDashboard from "@/pages/PhotographerDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
@@ -77,22 +77,21 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
 
-      {/* Customer-only */}
-      <Route path="/dashboard">{() => <RequireAuth component={CustomerDashboard} role="customer" />}</Route>
-      <Route path="/bookings">{() => <RequireAuth component={CustomerBookings} role="customer" />}</Route>
+      {/* Dashboard — all authenticated users */}
+      <Route path="/dashboard">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/bookings">{() => <RequireAnyAuth component={CustomerBookings} />}</Route>
 
-      {/* Booking flow — any logged-in user (customer OR photographer booking another photographer) */}
+      {/* Booking flow — any logged-in user */}
       <Route path="/book/:photographerId">{() => <RequireAnyAuth component={BookingFlow} />}</Route>
 
-      {/* Photographer */}
-      <Route path="/photographer/dashboard">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      {/* Photographer sub-pages all render the dashboard with a default tab */}
-      <Route path="/photographer/bookings">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      <Route path="/photographer/portfolio">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      <Route path="/photographer/packages">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      <Route path="/photographer/availability">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      <Route path="/photographer/earnings">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
-      <Route path="/photographer/profile">{() => <RequireAuth component={PhotographerDashboard} role="photographer" />}</Route>
+      {/* Photographer legacy routes — redirect to unified dashboard */}
+      <Route path="/photographer/dashboard">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/bookings">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/portfolio">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/packages">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/availability">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/earnings">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
+      <Route path="/photographer/profile">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
 
       {/* Admin */}
       <Route path="/admin">{() => <RequireAuth component={AdminDashboard} role="admin" />}</Route>
