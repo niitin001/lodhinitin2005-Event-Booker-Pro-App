@@ -3,17 +3,41 @@ import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { Button } from "@/components/ui/button";
-import { Camera, Moon, Sun, Menu, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import { Camera, Moon, Sun, Menu, User as UserIcon, LogOut, LayoutDashboard, Bell, Check, MessageSquare } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { AuthModal } from "@/components/AuthModal";
+import { useGetUserNotifications, getGetUserNotificationsQueryKey } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, token } = useAuth();
   const { theme, setTheme } = useTheme();
   const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register">("login");
+
+  const { data: notifications } = useGetUserNotifications(user?.id || 0, {
+    query: { enabled: !!user, queryKey: getGetUserNotificationsQueryKey(user?.id || 0), refetchInterval: 30000 }
+  });
+
+  const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
+
+  const markAllAsRead = async () => {
+    if (!user || !token) return;
+    try {
+      await fetch(`/api/users/${user.id}/notifications/read-all`, {
+        method: "PATCH",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      queryClient.invalidateQueries({ queryKey: getGetUserNotificationsQueryKey(user.id) });
+    } catch (e) {
+      console.error("Failed to mark notifications as read", e);
+    }
+  };
 
   const openLogin = () => { setAuthTab("login"); setAuthOpen(true); };
   const openRegister = () => { setAuthTab("register"); setAuthOpen(true); };
@@ -36,6 +60,7 @@ export function Navbar() {
             </Link>
             <nav className="hidden md:flex gap-6">
               <Link href="/explore" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Explore</Link>
+              {user && <Link href="/chat" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Chat</Link>}
               <Link href="/ai" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">AI Tools</Link>
               <Link href="/pricing" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Pricing</Link>
               <Link href="/about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">About</Link>
@@ -52,6 +77,46 @@ export function Navbar() {
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
+
+            {user && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-destructive" />
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-0">
+                  <div className="flex items-center justify-between p-4 border-b">
+                    <h3 className="font-semibold">Notifications</h3>
+                    {unreadCount > 0 && (
+                      <Button variant="ghost" size="sm" className="h-auto p-0 text-xs text-muted-foreground hover:text-foreground" onClick={markAllAsRead}>
+                        <Check className="h-3 w-3 mr-1" /> Mark all read
+                      </Button>
+                    )}
+                  </div>
+                  <ScrollArea className="max-h-[300px]">
+                    {!notifications?.length ? (
+                      <div className="p-4 text-center text-sm text-muted-foreground">No notifications.</div>
+                    ) : (
+                      <div className="flex flex-col">
+                        {notifications.slice(0, 10).map((n: any) => (
+                          <div key={n.id} className={`p-4 border-b last:border-0 ${!n.isRead ? 'bg-muted/50' : ''}`}>
+                            <p className="text-sm font-medium">{n.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{n.message}</p>
+                            <p className="text-[10px] text-muted-foreground mt-2">
+                              {new Date(n.createdAt).toLocaleDateString()} {new Date(n.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </ScrollArea>
+                </PopoverContent>
+              </Popover>
+            )}
 
             {user ? (
               <DropdownMenu>

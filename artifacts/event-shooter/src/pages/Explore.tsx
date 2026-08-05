@@ -8,11 +8,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { AuthModal } from "@/components/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Search, MapPin, Star, Filter, Camera, SlidersHorizontal,
-  CheckCircle, X, ArrowRight, ExternalLink,
+  CheckCircle, X, ArrowRight, ExternalLink, Heart
 } from "lucide-react";
-import { useListPhotographers } from "@workspace/api-client-react";
+import {
+  useListPhotographers,
+  useGetWishlist,
+  getGetWishlistQueryKey,
+  useAddToWishlist,
+  useRemoveFromWishlist
+} from "@workspace/api-client-react";
 
 const CITIES = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Pune", "Kolkata", "Jaipur", "Ahmedabad", "Goa"];
 const EVENT_TYPES = ["Wedding", "Pre-Wedding", "Corporate", "Fashion", "Party", "Drone", "Reel", "Maternity", "Engagement"];
@@ -85,6 +94,8 @@ const VENDOR_CATEGORY_TABS = [
 ];
 
 export default function Explore() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
 
@@ -93,12 +104,43 @@ export default function Explore() {
   const [priceIdx, setPriceIdx] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [vendorCategory, setVendorCategory] = useState(searchParams.get("category") || "all");
+  const [authOpen, setAuthOpen] = useState(false);
 
   const handleReset = () => { setCity("all"); setEventType("all"); setPriceIdx(0); setSearchQuery(""); setVendorCategory("all"); };
 
   const { data, isLoading } = useListPhotographers(undefined, {
     query: { queryKey: ["photographers", "list"] as any }
   });
+
+  const { data: wishlist } = useGetWishlist(user?.id || 0, {
+    query: { enabled: !!user, queryKey: getGetWishlistQueryKey(user?.id || 0) }
+  });
+
+  const addWishlistMutation = useAddToWishlist();
+  const removeWishlistMutation = useRemoveFromWishlist();
+
+  const handleWishlistToggle = (e: React.MouseEvent, photographer: any) => {
+    e.stopPropagation();
+    if (!user) {
+      setAuthOpen(true);
+      return;
+    }
+    const qk = getGetWishlistQueryKey(user.id);
+    const isWished = wishlist?.some((w: any) => w.id === photographer.id);
+
+    if (isWished) {
+      queryClient.setQueryData(qk, (old: any) => old?.filter((w: any) => w.id !== photographer.id));
+      removeWishlistMutation.mutate({ id: user.id, photographerId: photographer.id }, {
+        onError: () => queryClient.invalidateQueries({ queryKey: qk })
+      });
+    } else {
+      queryClient.setQueryData(qk, (old: any) => [...(old || []), photographer]);
+      addWishlistMutation.mutate({ id: user.id, data: { photographerId: photographer.id } as any }, {
+        onError: () => queryClient.invalidateQueries({ queryKey: qk }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: qk })
+      });
+    }
+  };
 
   const all = data?.photographers || [];
   const maxPrice = PRICE_RANGES[priceIdx].max;
@@ -286,9 +328,21 @@ export default function Explore() {
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           loading="lazy"
                         />
-                        <div className="absolute top-3 right-3 bg-background/90 backdrop-blur text-foreground text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
-                          <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
-                          {photographer.rating.toFixed(1)}
+                        <div className="absolute top-3 right-3 flex gap-2">
+                          <div className="bg-background/90 backdrop-blur text-foreground text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1">
+                            <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
+                            {photographer.rating.toFixed(1)}
+                          </div>
+                          <button
+                            onClick={(e) => handleWishlistToggle(e, photographer)}
+                            className="h-6 w-6 rounded-full bg-background/90 backdrop-blur flex items-center justify-center transition-colors hover:bg-background"
+                          >
+                            <Heart className={`h-3.5 w-3.5 transition-colors ${
+                              wishlist?.some((w: any) => w.id === photographer.id)
+                                ? "fill-red-500 text-red-500"
+                                : "text-foreground"
+                            }`} />
+                          </button>
                         </div>
                         {photographer.isVerified && (
                           <div className="absolute top-3 left-3">
@@ -387,6 +441,7 @@ export default function Explore() {
       </main>
 
       <Footer />
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} defaultTab="login" />
     </div>
   );
 }

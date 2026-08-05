@@ -26,6 +26,8 @@ import Pricing from "@/pages/Pricing";
 import HelpCenter from "@/pages/HelpCenter";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
+import Chat from "@/pages/Chat";
+import VendorOnboarding from "@/pages/VendorOnboarding";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +82,8 @@ function Router() {
       {/* Dashboard — all authenticated users */}
       <Route path="/dashboard">{() => <RequireAnyAuth component={UnifiedDashboard} />}</Route>
       <Route path="/bookings">{() => <RequireAnyAuth component={CustomerBookings} />}</Route>
+      <Route path="/chat">{() => <RequireAnyAuth component={Chat} />}</Route>
+      <Route path="/onboarding">{() => <RequireAnyAuth component={VendorOnboarding} />}</Route>
 
       {/* Booking flow — any logged-in user */}
       <Route path="/book/:photographerId">{() => <RequireAnyAuth component={BookingFlow} />}</Route>

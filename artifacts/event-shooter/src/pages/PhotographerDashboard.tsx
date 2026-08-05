@@ -49,7 +49,7 @@ export default function PhotographerDashboard() {
 
   const { data: bookings, isLoading: bookingsLoading, refetch: refetchBookings } = useListBookings(
     { role: "photographer" } as any,
-    { query: { enabled: !!user } }
+    { query: { enabled: !!user, queryKey: ["bookings", "photographer"] } }
   );
 
   const acceptMutation = useAcceptBooking();

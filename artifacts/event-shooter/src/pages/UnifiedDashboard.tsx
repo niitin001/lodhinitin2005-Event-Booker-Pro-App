@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import {
   useListBookings,
   useAcceptBooking,
@@ -18,11 +19,17 @@ import {
   useGetPhotographer,
   useUpdatePhotographer,
   getGetPhotographerQueryKey,
+  useGetWishlist,
+  getGetWishlistQueryKey,
+  useGetPortfolio,
+  getGetPortfolioQueryKey,
+  useAddPortfolioItem,
+  useCreateReview
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   CalendarCheck, Clock, CheckCircle, Camera, Search, MapPin,
-  Star, IndianRupee, User, Loader2, ArrowRight, XCircle,
+  Star, IndianRupee, User, Loader2, ArrowRight, XCircle, Heart, Plus, FileVideo
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -48,6 +55,18 @@ export default function UnifiedDashboard() {
     displayName: "", bio: "", city: "", startingPrice: "", specializations: [] as string[],
   });
 
+  const [reviewBooking, setReviewBooking] = useState<any>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<number>>(new Set());
+  const createReviewMutation = useCreateReview();
+
+  const [portfolioMediaUrl, setPortfolioMediaUrl] = useState("");
+  const [portfolioMediaType, setPortfolioMediaType] = useState("photo");
+  const [portfolioCaption, setPortfolioCaption] = useState("");
+  const [isPortfolioDialogOpen, setIsPortfolioDialogOpen] = useState(false);
+  const addPortfolioMutation = useAddPortfolioItem();
+
   const { data: myBookings, isLoading: myBookingsLoading } = useListBookings(
     undefined,
     { query: { queryKey: ["bookings", "as-customer"] as any, enabled: !!user } }
@@ -60,6 +79,14 @@ export default function UnifiedDashboard() {
 
   const { data: photographer } = useGetPhotographer(user?.id || 0, {
     query: { enabled: !!user?.id, queryKey: getGetPhotographerQueryKey(user?.id || 0) }
+  });
+
+  const { data: wishlist } = useGetWishlist(user?.id || 0, {
+    query: { enabled: !!user?.id, queryKey: getGetWishlistQueryKey(user?.id || 0) }
+  });
+
+  const { data: portfolio } = useGetPortfolio(photographer?.id || 0, {
+    query: { enabled: !!photographer?.id, queryKey: getGetPortfolioQueryKey(photographer?.id || 0) }
   });
 
   if (photographer && !profileInitialized) {
@@ -106,6 +133,48 @@ export default function UnifiedDashboard() {
     }));
   };
 
+  const handleReviewSubmit = () => {
+    if (!reviewBooking) return;
+    createReviewMutation.mutate({
+      data: {
+        photographerId: reviewBooking.photographerId,
+        bookingId: reviewBooking.id,
+        rating: reviewRating,
+        comment: reviewComment
+      } as any
+    }, {
+      onSuccess: () => {
+        toast.success("Review submitted!");
+        setReviewedBookingIds(prev => new Set(prev).add(reviewBooking.id));
+        setReviewBooking(null);
+        setReviewComment("");
+        setReviewRating(5);
+      },
+      onError: () => toast.error("Failed to submit review.")
+    });
+  };
+
+  const handlePortfolioSubmit = () => {
+    if (!photographer?.id || !portfolioMediaUrl.trim()) return;
+    addPortfolioMutation.mutate({
+      id: photographer.id,
+      data: {
+        mediaUrl: portfolioMediaUrl,
+        mediaType: portfolioMediaType,
+        caption: portfolioCaption
+      } as any
+    }, {
+      onSuccess: () => {
+        toast.success("Portfolio item added!");
+        queryClient.invalidateQueries({ queryKey: getGetPortfolioQueryKey(photographer.id) });
+        setIsPortfolioDialogOpen(false);
+        setPortfolioMediaUrl("");
+        setPortfolioCaption("");
+      },
+      onError: () => toast.error("Failed to add portfolio item.")
+    });
+  };
+
   const handleProfileSave = () => {
     if (!user?.id) return;
     updateMutation.mutate({
@@ -147,6 +216,16 @@ export default function UnifiedDashboard() {
             </Button>
           </div>
 
+          {user?.role === "photographer" && photographer && (!photographer.displayName || !photographer.city) && (
+            <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-primary">Complete your vendor profile</h3>
+                <p className="text-sm text-muted-foreground mt-1">You need to complete your profile before you can be discovered by customers.</p>
+              </div>
+              <Button onClick={() => setLocation("/onboarding")} className="shrink-0">Complete Profile</Button>
+            </div>
+          )}
+
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
@@ -167,7 +246,7 @@ export default function UnifiedDashboard() {
 
           {/* Main tabs */}
           <Tabs defaultValue="my-bookings">
-            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 mb-4">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-4">
               <TabsTrigger value="my-bookings">My Bookings</TabsTrigger>
               <TabsTrigger value="requests" className="relative">
                 Requests
@@ -177,6 +256,7 @@ export default function UnifiedDashboard() {
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger value="saved">Saved</TabsTrigger>
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="quick" className="hidden sm:block">Quick Actions</TabsTrigger>
             </TabsList>
@@ -230,6 +310,11 @@ export default function UnifiedDashboard() {
                               {booking.status}
                             </Badge>
                             <p className="text-sm font-bold">₹{booking.totalAmount?.toLocaleString("en-IN") || "—"}</p>
+                            {booking.status === "completed" && !reviewedBookingIds.has(booking.id) && (
+                              <Button size="sm" variant="outline" className="h-7 text-xs px-2 mt-1" onClick={(e) => { e.stopPropagation(); setReviewBooking(booking); }}>
+                                Leave Review
+                              </Button>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -334,8 +419,51 @@ export default function UnifiedDashboard() {
               </Card>
             </TabsContent>
 
+            {/* SAVED TAB */}
+            <TabsContent value="saved">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">Saved Vendors</CardTitle>
+                  <p className="text-sm text-muted-foreground">Vendors you have added to your wishlist.</p>
+                </CardHeader>
+                <CardContent className="px-0 pb-0">
+                  {!wishlist?.length ? (
+                    <div className="text-center py-12 px-5">
+                      <Heart className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+                      <p className="text-muted-foreground mb-4">Your wishlist is empty.</p>
+                      <Button onClick={() => setLocation("/explore")}>Explore Vendors</Button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4 pt-0">
+                      {wishlist.map((photographer: any) => (
+                        <div
+                          key={photographer.id}
+                          className="border rounded-xl overflow-hidden cursor-pointer hover:shadow-md transition-shadow group flex flex-col"
+                          onClick={() => setLocation(`/photographers/${photographer.id}`)}
+                        >
+                          <div className="aspect-[4/3] bg-muted relative overflow-hidden">
+                            <img src={photographer.coverImageUrl || "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                            <div className="absolute top-2 right-2 bg-background/90 text-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                              <Star className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" /> {photographer.rating?.toFixed(1) || "New"}
+                            </div>
+                          </div>
+                          <div className="p-3">
+                            <h4 className="font-semibold text-sm truncate">{photographer.displayName}</h4>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                              <MapPin className="h-3 w-3" /> {photographer.city}
+                            </p>
+                            <p className="text-xs font-bold mt-2">Starts at ₹{photographer.startingPrice?.toLocaleString("en-IN")}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             {/* MY PROFILE */}
-            <TabsContent value="profile">
+            <TabsContent value="profile" className="space-y-4">
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base font-semibold">My Vendor Profile</CardTitle>
@@ -414,6 +542,45 @@ export default function UnifiedDashboard() {
                   </p>
                 </CardContent>
               </Card>
+
+              {user?.role === "photographer" && (
+                <Card>
+                  <CardHeader className="pb-3 flex flex-row items-start justify-between">
+                    <div>
+                      <CardTitle className="text-base font-semibold">My Portfolio</CardTitle>
+                      <p className="text-sm text-muted-foreground mt-1">Showcase your best work to potential clients.</p>
+                    </div>
+                    <Button size="sm" onClick={() => setIsPortfolioDialogOpen(true)} className="shrink-0"><Plus className="h-4 w-4 mr-1"/> Add Item</Button>
+                  </CardHeader>
+                  <CardContent>
+                    {!portfolio?.length ? (
+                      <div className="text-center py-10 border border-dashed rounded-lg">
+                        <Camera className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground mb-3">No portfolio items added yet.</p>
+                        <Button variant="outline" size="sm" onClick={() => setIsPortfolioDialogOpen(true)}>Add your first photo/video</Button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {portfolio.map((item: any) => (
+                          <div key={item.id} className="group relative aspect-square rounded-lg overflow-hidden bg-muted border">
+                            <img src={item.mediaUrl} alt={item.caption} className="w-full h-full object-cover" />
+                            {item.mediaType === "video" && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+                                <FileVideo className="h-8 w-8 text-white opacity-80" />
+                              </div>
+                            )}
+                            {item.caption && (
+                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 pt-6">
+                                <p className="text-[10px] text-white font-medium truncate">{item.caption}</p>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* QUICK ACTIONS */}
@@ -442,6 +609,86 @@ export default function UnifiedDashboard() {
 
         </div>
       </main>
+
+      {/* Leave Review Dialog */}
+      <Dialog open={!!reviewBooking} onOpenChange={(o) => !o && setReviewBooking(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Leave a Review</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2 text-center">
+              <p className="text-sm font-medium">How was your experience?</p>
+              <div className="flex justify-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} onClick={() => setReviewRating(star)} className="focus:outline-none">
+                    <Star className={`h-8 w-8 transition-colors ${reviewRating >= star ? "fill-yellow-500 text-yellow-500" : "text-muted"}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Your Comment</Label>
+              <Textarea 
+                placeholder="Share details about the service, quality, and your overall experience..."
+                rows={4}
+                value={reviewComment}
+                onChange={e => setReviewComment(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReviewBooking(null)}>Cancel</Button>
+            <Button onClick={handleReviewSubmit} disabled={createReviewMutation.isPending || !reviewComment.trim()}>
+              {createReviewMutation.isPending ? "Submitting..." : "Submit Review"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Portfolio Dialog */}
+      <Dialog open={isPortfolioDialogOpen} onOpenChange={setIsPortfolioDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Portfolio Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Media URL</Label>
+              <Input 
+                placeholder="https://example.com/image.jpg"
+                value={portfolioMediaUrl}
+                onChange={e => setPortfolioMediaUrl(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Media Type</Label>
+              <Select value={portfolioMediaType} onValueChange={setPortfolioMediaType}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="photo">Photo</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Caption (Optional)</Label>
+              <Input 
+                placeholder="e.g. Traditional Wedding Ceremony"
+                value={portfolioCaption}
+                onChange={e => setPortfolioCaption(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsPortfolioDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handlePortfolioSubmit} disabled={addPortfolioMutation.isPending || !portfolioMediaUrl.trim()}>
+              {addPortfolioMutation.isPending ? "Adding..." : "Add to Portfolio"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
   );

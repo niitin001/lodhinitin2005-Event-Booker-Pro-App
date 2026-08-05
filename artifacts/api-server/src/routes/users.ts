@@ -69,5 +69,17 @@ router.get("/users/:id/notifications", requireAuth, async (req, res): Promise<vo
   res.json(notifs.map(n => ({ ...n, createdAt: n.createdAt.toISOString() })));
 });
 
+router.patch("/users/:id/notifications/:notifId/read", requireAuth, async (req, res): Promise<void> => {
+  const notifId = parseInt(Array.isArray(req.params.notifId) ? req.params.notifId[0] : req.params.notifId, 10);
+  await db.update(notificationsTable).set({ isRead: true }).where(eq(notificationsTable.id, notifId));
+  res.json({ ok: true });
+});
+
+router.patch("/users/:id/notifications/read-all", requireAuth, async (req, res): Promise<void> => {
+  const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
+  await db.update(notificationsTable).set({ isRead: true }).where(and(eq(notificationsTable.userId, id), eq(notificationsTable.isRead, false)));
+  res.json({ ok: true });
+});
+
 export default router;
 export { serializePhotographer };

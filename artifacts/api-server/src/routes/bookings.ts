@@ -1,7 +1,13 @@
 import { Router, type IRouter } from "express";
 import { eq, and, or } from "drizzle-orm";
-import { db, bookingsTable, photographersTable, usersTable, packagesTable, deliverablesTable } from "@workspace/db";
+import { db, bookingsTable, photographersTable, usersTable, packagesTable, deliverablesTable, notificationsTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
+
+async function notify(userId: number, title: string, message: string) {
+  try {
+    await db.insert(notificationsTable).values({ userId, title, message });
+  } catch { /* non-critical */ }
+}
 
 const router: IRouter = Router();
 
@@ -99,6 +105,12 @@ router.post("/bookings", requireAuth, async (req, res): Promise<void> => {
     .set({ totalBookings: db.select({ count: eq(photographersTable.id, photographerId) }) as unknown as number })
     .where(eq(photographersTable.id, photographerId));
 
+  // Notify vendor of new booking request
+  const [vendor] = await db.select().from(photographersTable).where(eq(photographersTable.id, photographerId));
+  if (vendor) {
+    await notify(vendor.userId, "New Booking Request", `You have a new ${eventType} booking request for ${city}.`);
+  }
+
   res.status(201).json(serializeBooking(booking));
 });
 
@@ -124,6 +136,7 @@ router.post("/bookings/:id/accept", requireAuth, async (req, res): Promise<void>
   const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
   const [booking] = await db.update(bookingsTable).set({ status: "confirmed" }).where(eq(bookingsTable.id, id)).returning();
   if (!booking) { res.status(404).json({ error: "Booking not found" }); return; }
+  await notify(booking.customerId, "Booking Confirmed!", `Your ${booking.eventType} booking has been confirmed. Get ready for your event!`);
   res.json(serializeBooking(booking));
 });
 
@@ -132,6 +145,7 @@ router.post("/bookings/:id/reject", requireAuth, async (req, res): Promise<void>
   const { reason } = req.body as { reason: string };
   const [booking] = await db.update(bookingsTable).set({ status: "rejected", rejectionReason: reason }).where(eq(bookingsTable.id, id)).returning();
   if (!booking) { res.status(404).json({ error: "Booking not found" }); return; }
+  await notify(booking.customerId, "Booking Update", `Your ${booking.eventType} booking request was not accepted. Reason: ${reason || "Not specified"}`);
   res.json(serializeBooking(booking));
 });
 
@@ -140,6 +154,9 @@ router.post("/bookings/:id/cancel", requireAuth, async (req, res): Promise<void>
   const { reason } = req.body as { reason: string };
   const [booking] = await db.update(bookingsTable).set({ status: "cancelled", cancellationReason: reason }).where(eq(bookingsTable.id, id)).returning();
   if (!booking) { res.status(404).json({ error: "Booking not found" }); return; }
+  // Notify vendor of cancellation
+  const [vendor] = await db.select().from(photographersTable).where(eq(photographersTable.id, booking.photographerId));
+  if (vendor) await notify(vendor.userId, "Booking Cancelled", `A ${booking.eventType} booking has been cancelled by the customer.`);
   res.json(serializeBooking(booking));
 });
 
@@ -147,6 +164,7 @@ router.post("/bookings/:id/complete", requireAuth, async (req, res): Promise<voi
   const id = parseInt(Array.isArray(req.params.id) ? req.params.id[0] : req.params.id, 10);
   const [booking] = await db.update(bookingsTable).set({ status: "completed" }).where(eq(bookingsTable.id, id)).returning();
   if (!booking) { res.status(404).json({ error: "Booking not found" }); return; }
+  await notify(booking.customerId, "Event Completed!", `Your ${booking.eventType} event is complete. Please leave a review for your experience!`);
   res.json(serializeBooking(booking));
 });
 
