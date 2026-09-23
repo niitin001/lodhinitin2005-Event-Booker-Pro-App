@@ -1,1 +1,0 @@
-- [Expo mobile preview quirks](expo-preview-quirks.md) — Expo Router web previews reject array styles on `Link asChild` children; native bundles can build despite missing optional DevTools libraries.
