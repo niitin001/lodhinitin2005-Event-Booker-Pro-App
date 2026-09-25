@@ -79,6 +79,29 @@ router.post("/bookings",auth,async(req:any,res)=>{
 });
 router.get("/bookings/me",auth,async(req:any,res)=>res.json(await db.select().from(bookings).where(eq(bookings.customerId,req.user.id))));
 
+router.get("/dashboard/customer",auth,async(req:any,res:any)=>{
+  const user=(await db.select({id:users.id,name:users.name,email:users.email,role:users.role}).from(users).where(eq(users.id,req.user.id)))[0];
+  const rows=await db.select().from(bookings).where(eq(bookings.customerId,req.user.id));
+  res.json({user,bookings:rows,counts:{total:rows.length,pending:rows.filter(b=>b.status==="pending").length,confirmed:rows.filter(b=>b.status==="confirmed").length,completed:rows.filter(b=>b.status==="completed").length,cancelled:rows.filter(b=>b.status==="cancelled").length}});
+});
+router.get("/dashboard/provider",auth,role("provider"),async(req:any,res:any)=>{
+  const owned=await db.select().from(providers).where(eq(providers.ownerId,req.user.id));
+  const ids=new Set(owned.map(p=>p.id));
+  const rows=(await db.select().from(bookings)).filter(b=>ids.has(b.providerId));
+  res.json({providers:owned,bookings:rows,counts:{total:rows.length,pending:rows.filter(b=>b.status==="pending").length,confirmed:rows.filter(b=>b.status==="confirmed").length,completed:rows.filter(b=>b.status==="completed").length,cancelled:rows.filter(b=>b.status==="cancelled").length}});
+});
+router.get("/dashboard/admin",auth,role("admin"),async(_req:any,res:any)=>{
+  const [allUsers,allProviders,allBookings]=await Promise.all([db.select().from(users),db.select().from(providers),db.select().from(bookings)]);
+  res.json({counts:{users:allUsers.length,providers:allProviders.length,bookings:allBookings.length,pendingProviders:allProviders.filter(p=>p.verified==="pending").length},users:allUsers,providers:allProviders,bookings:allBookings});
+});
+router.patch("/providers/:id/verification",auth,role("admin"),async(req:any,res:any)=>{
+  const verified=String(req.body?.verified||"");
+  if(!["pending","approved","rejected"].includes(verified)) return res.status(400).json({message:"Invalid verification state"});
+  const [updated]=await db.update(providers).set({verified}).where(eq(providers.id,Number(req.params.id))).returning();
+  if(!updated) return res.status(404).json({message:"Provider not found"});
+  res.json(updated);
+});
+
 router.get("/bookings/provider",auth,role("provider","admin"),async(req:any,res)=>{
   const rows=await db.select().from(bookings);
   res.json(rows);
