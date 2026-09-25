@@ -2,7 +2,7 @@ import { Router } from "express";
 import crypto from "node:crypto";
 import { db } from "@workspace/db";
 import { users, providers, bookings } from "@workspace/db/schema";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 const router = Router();
 const secret = process.env.SESSION_SECRET || "event-booker-dev-secret";
@@ -61,7 +61,8 @@ router.post("/providers",auth,role("provider","admin"),async(req:any,res)=>{
   try{
     const {name,category,location,price=0,rating=5,phone,description}=req.body||{};
     if(!name||!category||!location) return res.status(400).json({message:"Name, category and location are required"});
-    const [provider]=await db.insert(providers).values({name,category,location,price:Number(price),rating:Number(rating),phone,description}).returning();
+    const ownerId = req.user.role === "admin" ? Number(req.body?.ownerId || req.user.id) : req.user.id;
+    const [provider]=await db.insert(providers).values({ownerId,name,category,location,price:Number(price),rating:Number(rating),phone,description,verified:req.user.role==="admin"?"approved":"pending"}).returning();
     res.status(201).json(provider);
   }catch(e){req.log?.error(e);res.status(500).json({message:"Provider creation failed"});}
 });
@@ -85,7 +86,7 @@ router.get("/bookings/provider",auth,role("provider","admin"),async(req:any,res)
 router.patch("/bookings/:id/status",auth,role("provider","admin"),async(req:any,res)=>{
   const status=String(req.body?.status||"");
   if(!["pending","confirmed","completed","cancelled"].includes(status)) return res.status(400).json({message:"Invalid booking status"});
-  const [updated]=await db.update(bookings).set({status}).where(eq(bookings.id,Number(req.params.id))).returning();
+  const bookingId=Number(req.params.id);\n  const existing = (await db.select().from(bookings).where(eq(bookings.id,bookingId)))[0];\n  if(!existing) return res.status(404).json({message:"Booking not found"});\n  if(req.user.role==="provider"){\n    const owned=(await db.select().from(providers).where(eq(providers.id,existing.providerId)))[0];\n    if(!owned || owned.ownerId!==req.user.id) return res.status(403).json({message:"You do not manage this booking"});\n  }\n  const [updated]=await db.update(bookings).set({status}).where(eq(bookings.id,bookingId)).returning();
   if(!updated) return res.status(404).json({message:"Booking not found"});
   res.json(updated);
 });
