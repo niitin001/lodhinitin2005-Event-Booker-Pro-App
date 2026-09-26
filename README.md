@@ -4,7 +4,7 @@ A modern Full-Stack Event Booking Platform that connects customers with professi
 
 ## 🚀 Live Demo
 
-🔗 Live Website: https://your-live-demo-link.com
+🔗 Live Website: Deployment pending (GitHub upgrade branch ready)
 
 ## 📂 GitHub Repository
 
@@ -138,7 +138,7 @@ npm run dev
 
 # 🌟 Future Improvements
 
-- Online Payment Integration
+- Customer booking workflow\n- Provider booking status workflow\n- Online Payment Integration
 - Email Notifications
 - Google Authentication
 - Admin Dashboard

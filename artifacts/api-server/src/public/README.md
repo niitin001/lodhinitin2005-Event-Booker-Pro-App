@@ -1,0 +1,1 @@
+Event Booker Pro static frontend. Served by the API server.
